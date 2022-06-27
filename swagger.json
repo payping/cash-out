@@ -2,30 +2,28 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Cash Out Public API",
-    "description": "this service suppose to handle settlements after shaparak withdraw workflows.",
+    "description": "This service suppose to handle batch settlements.",
     "contact": {
-      "name": "You can use this reference for query, pagination and filtering in lists",
-      "url": "https://alirezanet.github.io/Gridify/guide/filtering.html#filtering"
+      "name": "",
+      "url": "https://payping.ir"
     },
-    "version": "v1"
+    "version": "v1",
+    "x-logo": {
+			"url": "https://cdn.payping.ir/statics/Payping-logo/full%20logo/english/fullcolor/SVG/payping.svg"
+		}
   },
+  "servers": [
+    {
+      "url": "https://api.payping.ir/"
+    }
+  ],
   "paths": {
-    "/v{version}/cash-out/overview": {
+    "/v1/cash-out/overview": {
       "get": {
         "tags": [
           "CashOut"
         ],
         "summary": "Return overview of user cash-out like: withdrawable balance, total withdraw amount",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -40,161 +38,12 @@
         }
       }
     },
-    "/v{version}/cash-out/notify": {
-      "post": {
-        "tags": [
-          "CashOut"
-        ],
-        "summary": "Get EZ-Pay web hook for status changing of each settlement",
-        "parameters": [
-          {
-            "name": "mark",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EzNotifyResult"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EzNotifyResult"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EzNotifyResult"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/inquiry-recent": {
-      "get": {
-        "tags": [
-          "CashOut"
-        ],
-        "summary": "Jobs for inquiry requests in dkron",
-        "parameters": [
-          {
-            "name": "mark",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/conflict": {
-      "get": {
-        "tags": [
-          "CashOut"
-        ],
-        "summary": "Jobs for inquiry requests in dkron",
-        "parameters": [
-          {
-            "name": "mark",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/wage": {
-      "post": {
-        "tags": [
-          "CashOut"
-        ],
-        "summary": "Calculate our wage for settlements in last 3 days and send cash-out request to ez-pay",
-        "parameters": [
-          {
-            "name": "mark",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/requests": {
+    "/v1/cash-out/requests": {
       "post": {
         "tags": [
           "Request"
         ],
         "summary": "Public api for customer to submit request with settlements",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -299,313 +148,7 @@
         }
       }
     },
-    "/v{version}/cash-out/requests/upload": {
-      "post": {
-        "tags": [
-          "Request"
-        ],
-        "summary": "Create a batch cash-out request with settlements details from excel or an empty cash-out request without any inner settlements",
-        "parameters": [
-          {
-            "name": "Title",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Description",
-            "in": "query",
-            "schema": {
-              "maxLength": 50,
-              "type": "string"
-            }
-          },
-          {
-            "name": "About",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/SettlementAboutType"
-            }
-          },
-          {
-            "name": "Status",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/RequestStatus"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "file": {
-                  "style": "form"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateRequestResultVM"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/requests/submit": {
-      "post": {
-        "tags": [
-          "Request"
-        ],
-        "summary": "Submit request to send Ez Pay",
-        "parameters": [
-          {
-            "name": "requestCode",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SubmitRequestResultVM"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/requests/{requestCode}/settlements": {
-      "get": {
-        "tags": [
-          "Settlement"
-        ],
-        "summary": "Return list of settlements for specific cash-out request with complete filtering and queryable",
-        "parameters": [
-          {
-            "name": "requestCode",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "OrderBy",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Filter",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "getAll",
-            "in": "query",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SettlementFullDetailsVMPaging"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Settlement"
-        ],
-        "summary": "Create a single settlement for specific request",
-        "parameters": [
-          {
-            "name": "requestCode",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSettlementVM"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSettlementVM"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateSettlementVM"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SettlementDetailsVM"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Settlement"
-        ],
-        "summary": "Update a single settlement for specific request",
-        "parameters": [
-          {
-            "name": "requestCode",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSettlementVM"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSettlementVM"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSettlementVM"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SettlementDetailsVM"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/requests/settlements": {
+    "/v1/cash-out/requests/settlements": {
       "get": {
         "tags": [
           "Settlement"
@@ -661,45 +204,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/v{version}/cash-out/requests/{requestCode}/settlements/{settlementCode}": {
-      "delete": {
-        "tags": [
-          "Settlement"
-        ],
-        "summary": "Delete a single settlement for specific request",
-        "parameters": [
-          {
-            "name": "requestCode",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "settlementCode",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
           }
         }
       }
@@ -1233,7 +737,7 @@
   },
   "security": [
     {
-      "Bearer": [ ]
+      "Bearer": []
     }
   ]
 }
