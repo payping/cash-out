@@ -7,7 +7,8 @@
       "name": "You can use this reference for query, pagination and filtering in lists",
       "url": "https://alirezanet.github.io/Gridify/guide/filtering.html#filtering"
     },
-    "version": "v1"
+    "version": "v1",
+    "url": "api.payping.ir"
   },
   "paths": {
     "/v{version}/cash-out/overview": {
