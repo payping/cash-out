@@ -2,28 +2,30 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Cash Out Public API",
-    "description": "This service suppose to handle batch settlements.",
+    "description": "this service suppose to handle settlements after shaparak withdraw workflows.",
     "contact": {
-      "name": "",
-      "url": "https://payping.ir"
+      "name": "You can use this reference for query, pagination and filtering in lists",
+      "url": "https://alirezanet.github.io/Gridify/guide/filtering.html#filtering"
     },
-    "version": "v1",
-    "x-logo": {
-			"url": "https://cdn.payping.ir/statics/Payping-logo/full%20logo/english/fullcolor/SVG/payping.svg"
-		}
+    "version": "v1"
   },
-  "servers": [
-    {
-      "url": "https://api.payping.ir/"
-    }
-  ],
   "paths": {
-    "/v1/cash-out/overview": {
+    "/v{version}/cash-out/overview": {
       "get": {
         "tags": [
           "CashOut"
         ],
         "summary": "Return overview of user cash-out like: withdrawable balance, total withdraw amount",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -38,12 +40,142 @@
         }
       }
     },
-    "/v1/cash-out/requests": {
+    "/v{version}/cash-out/deposit": {
+      "post": {
+        "tags": [
+          "Deposit"
+        ],
+        "summary": "Create a deposit with id to increase user balance",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepositVM"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepositVM"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepositVM"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepositDetailsVM"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BatchRequestError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Deposit"
+        ],
+        "summary": "Return list of deposits with id for user",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepositDetailsVMPaging"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v{version}/cash-out/requests": {
       "post": {
         "tags": [
           "Request"
         ],
         "summary": "Public api for customer to submit request with settlements",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -148,7 +280,7 @@
         }
       }
     },
-    "/v1/cash-out/requests/settlements": {
+    "/v{version}/cash-out/requests/settlements": {
       "get": {
         "tags": [
           "Settlement"
@@ -328,6 +460,58 @@
         },
         "additionalProperties": false
       },
+      "CreateDepositVM": {
+        "type": "object",
+        "properties": {
+          "isLegal": {
+            "type": "boolean"
+          },
+          "title": {
+            "maxLength": 10,
+            "type": "string",
+            "nullable": true
+          },
+          "businessNationalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "registerDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "notifyUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateRequestResultVM": {
         "type": "object",
         "properties": {
@@ -371,11 +555,23 @@
             "type": "string",
             "nullable": true
           },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalId": {
+            "type": "string",
+            "nullable": true
+          },
           "error": {
             "type": "string",
             "nullable": true
           },
           "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "errorDesc": {
             "type": "string",
             "nullable": true
           }
@@ -400,6 +596,90 @@
           "clientRefId": {
             "type": "string",
             "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DepositDetailsVM": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "depositId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLegal": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessNationalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "registerDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DepositDetailsVMPaging": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepositDetailsVM"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -407,21 +687,44 @@
       "DestinationBank": {
         "enum": [
           12,
-          15,
           16,
           17,
           18,
           19,
           54,
-          55,
           56,
           57,
           61,
-          62,
-          66
+          62
         ],
         "type": "integer",
         "format": "int32"
+      },
+      "EzNotifyDepositResult": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "depositId": {
+            "type": "string",
+            "nullable": true
+          },
+          "depositLocalTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankReference": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "EzNotifyResult": {
         "type": "object",
@@ -439,6 +742,14 @@
             "nullable": true
           },
           "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedTransferType": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastEffectiveTransferType": {
             "type": "string",
             "nullable": true
           }
@@ -460,9 +771,15 @@
             "type": "number",
             "format": "double"
           },
-          "walletBalance": {
-            "type": "number",
-            "format": "double"
+          "isDepositActivate": {
+            "type": "boolean"
+          },
+          "hasUnknown": {
+            "type": "boolean"
+          },
+          "excelURL": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -470,6 +787,10 @@
       "RequestDetailsVM": {
         "type": "object",
         "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
           "createdOn": {
             "type": "string",
             "format": "date-time"
@@ -526,7 +847,9 @@
           0,
           1,
           2,
-          3
+          3,
+          4,
+          5
         ],
         "type": "integer",
         "format": "int32"
@@ -645,6 +968,22 @@
           },
           "status": {
             "$ref": "#/components/schemas/SettlementStatus"
+          },
+          "transferType": {
+            "$ref": "#/components/schemas/TransferType"
+          },
+          "clientRefId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nearestACHTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "submittedTime": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -690,11 +1029,74 @@
         },
         "additionalProperties": false
       },
+      "TransactionDetailVM": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TransactionDetailVMPaging": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionDetailVM"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TransactionType": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
       "TransferType": {
         "enum": [
           0,
           1,
           2
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "TwoStepType": {
+        "enum": [
+          0,
+          1
         ],
         "type": "integer",
         "format": "int32"
@@ -737,7 +1139,7 @@
   },
   "security": [
     {
-      "Bearer": []
+      "Bearer": [ ]
     }
   ]
 }
