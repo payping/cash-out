@@ -2,11 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Cash Out Public API",
-    "description": "this service suppose to handle settlements after shaparak withdraw workflows.",
-    "contact": {
-      "name": "You can use this reference for query, pagination and filtering in lists",
-      "url": "https://alirezanet.github.io/Gridify/guide/filtering.html#filtering"
-    },
+    "description": "",
     "version": "v1"
   },
   "servers": [
