@@ -41,6 +41,67 @@
         }
       }
     },
+    "/v1/cash-out/transactions": {
+      "get": {
+        "tags": [
+          "CashOut"
+        ],
+        "summary": "Return list of user transactions in specific details",
+        "description": "You can filter your list by:\r\n\r\n transactionCode, createdOn, type, transactionKind\r\n Type value==>Input=0, Output=1\r\n TransactionKind value==>Money=0, Wage=1, Manual=2, Deposit=3, DepositWage=4\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=TransactionCode='PT-123654' is wrong\r\n  ّFilter=transactionCode='PT-123654' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: transactionCode\r\nFilter = transactionCode = 'PT-123654'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: transactionCode\r\nFilter = transactionCode = *'PT-123'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\ntransactionCode = *'PT-123', type= 0\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\ntransactionCode = *'PT-123' | type= 0\r\n</code>",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDetailVMPaging"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/cash-out/deposit": {
       "post": {
         "tags": [
@@ -547,102 +608,6 @@
         },
         "additionalProperties": false
       },
-      "CreateRequestResultVM": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "settlements": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SettlementDetailsVM"
-            },
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreateSettlementErrorVM"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateSettlementErrorVM": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "iban": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "clientRefId": {
-            "type": "string",
-            "nullable": true
-          },
-          "mobile": {
-            "type": "string",
-            "nullable": true
-          },
-          "nationalId": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "errorDesc": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateSettlementVM": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "iban": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "clientRefId": {
-            "type": "string",
-            "nullable": true
-          },
-          "mobile": {
-            "type": "string",
-            "nullable": true
-          },
-          "nationalId": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "DepositDetailsVM": {
         "type": "object",
         "properties": {
@@ -756,62 +721,6 @@
         ],
         "type": "integer",
         "format": "int32"
-      },
-      "EzNotifyDepositResult": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "depositId": {
-            "type": "string",
-            "nullable": true
-          },
-          "depositLocalTimestamp": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "transactionNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "bankReference": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "EzNotifyResult": {
-        "type": "object",
-        "properties": {
-          "clientTransferReference": {
-            "type": "string",
-            "nullable": true
-          },
-          "serverTransferReference": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "bankTransferReference": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "requestedTransferType": {
-            "type": "string",
-            "nullable": true
-          },
-          "lastEffectiveTransferType": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
       },
       "OverviewResult": {
         "type": "object",
@@ -940,47 +849,6 @@
         "type": "integer",
         "format": "int32"
       },
-      "SettlementDetailsVM": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "wage": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "destinationBank": {
-            "$ref": "#/components/schemas/DestinationBank"
-          },
-          "persianBankName": {
-            "type": "string",
-            "nullable": true
-          },
-          "iban": {
-            "type": "string",
-            "nullable": true
-          },
-          "fullName": {
-            "type": "string",
-            "nullable": true
-          },
-          "clientRefId": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "SettlementFullDetailsVM": {
         "type": "object",
         "properties": {
@@ -1076,20 +944,6 @@
         "type": "integer",
         "format": "int32"
       },
-      "SubmitRequestResultVM": {
-        "type": "object",
-        "properties": {
-          "settlementCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "clientRefId": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "TransactionDetailVM": {
         "type": "object",
         "properties": {
@@ -1153,40 +1007,6 @@
         ],
         "type": "integer",
         "format": "int32"
-      },
-      "TwoStepType": {
-        "enum": [
-          "SMS=0 ",
-          "GoogleAuthenticator=1 "
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "UpdateSettlementVM": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "iban": {
-            "type": "string",
-            "nullable": true
-          },
-          "clientRefId": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
       }
     },
     "securitySchemes": {
