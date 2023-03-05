@@ -47,8 +47,8 @@
           "Deposit"
         ],
         "summary": "Create a deposit with id to increase user's balance",
-        "description": "Create a deposit- with- id to increase user’s balance In the input model, there is a field called NotifyUrl. We need this field to return the transaction result to it after registering the information. The returned information includes:\r\n \r\n **Amount, DepositId, DepositLocalTimestamp, TransactionNumber, BankReference**\r\n \r\n Note: you should implement a POST API and set its url to NotifyUrl, so that our webhook can call it.\r\nNote: If this address is not valid, you will receive an error.",    
-            "parameters": [
+        "description": "Create a deposit- with- id to increase user’s balance In the input model,\r\nthere is a field called NotifyUrl.We need this field to return the transaction result to it after registering the information.The returned information includes:\r\n\r\n **Amount, DepositId, DepositLocalTimestamp, TransactionNumber, BankReference**\r\n\r\nNote: you should implement a POST API and set its url to NotifyUrl, so that our webhook can call it. Note: If this address is not valid, you will receive an error.",
+        "parameters": [
           {
             "name": "version",
             "in": "path",
@@ -107,8 +107,8 @@
         "tags": [
           "Deposit"
         ],
-        "summary": "Return list of deposits with id for user\r\n with complete filtering and queryable.",
-        "description": "You can filter your list by:\r\n \r\n code, depositId, isLegal, createdOn, businessNationalId, nationalCode\r\n \r\n **Note: Filter and OrderBy are case sensitive:**\r\n \r\n for example:\r\n \r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n \r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'John Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And /- Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>", 
+        "summary": "Return list of deposits with id for user with complete filtering and queryable.",
+        "description": " You can filter your list by:\r\n\r\n code, depositId, isLegal, createdOn, businessNationalId, nationalCode\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'Jon Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>",
         "parameters": [
           {
             "name": "Page",
@@ -163,13 +163,43 @@
         }
       }
     },
+    "/v1/cash-out/deposit/provider-deposit-iban": {
+      "get": {
+        "tags": [
+          "Deposit"
+        ],
+        "summary": "Return deposit IBAN, Account holder,Bank name, Account number",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepositIbanDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/cash-out/requests": {
       "post": {
         "tags": [
           "Request"
         ],
         "summary": "Public api for customer to submit a request containing a list of settlements.",
-        "description": "In the input model, there is a field called NotifyUrl.We need this field to return the transaction result to it. The returned  information includes: \r\n\r\n**ClientTransferReference, ServerTransferReference, BankTransferReference, Status, RequestedTransferType, LastEffectiveTransferType**",      
+        "description": "In the input model, there is a field called NotifyUrl.We need this field to return the transaction result to it. The returned information includes:\r\n **ClientTransferReference, ServerTransferReference, BankTransferReference, Status, RequestedTransferType, LastEffectiveTransferType**",
         "parameters": [
           {
             "name": "version",
@@ -230,7 +260,7 @@
           "Request"
         ],
         "summary": "Return list of cash-out requests with complete filtering and queryable",
-        "description": "You can filter your list by:\r\n \r\n code, createdOn, totalAmount, status, title, transferType\r\n \r\n  **Note: Filter and OrderBy are case sensitive:**\r\n \r\n for example:\r\n \r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n \r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'John Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And /- Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>", 
+        "description": "You can filter your list by:\r\n\r\n code, createdOn, totalAmount, status, title, transferType\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'Jon Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>",
         "parameters": [
           {
             "name": "Page",
@@ -290,8 +320,8 @@
         "tags": [
           "Settlement"
         ],
-        "summary": "Return list of settlements with complete filtering and queryable",
-        "description": "You can filter your list by:\r\n \r\n code, amount, destinationBank, iban, bankTransferReference,\r\n createdOn, modifiedOn, status, clientRefId, mobile, nationalId, fullName\r\n \r\n  **Note: Filter and OrderBy are case sensitive:**\r\n \r\n for example:\r\n \r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n \r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'John Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And /- Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>", 
+        "summary": "Return list of settlements for with complete filtering and queryable",
+        "description": "You can filter your list by:\r\n\r\n code, amount, destinationBank, iban, bankTransferReference,\r\n createdOn, modifiedOn-, status, clientRefId, mobile, nationalId, fullName\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'Jon Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>",
         "parameters": [
           {
             "name": "Page",
@@ -346,7 +376,7 @@
         }
       }
     }
-   },
+  },
   "components": {
     "schemas": {
       "BatchRequest": {
@@ -473,7 +503,6 @@
             "type": "boolean"
           },
           "title": {
-            "maxLength": 10,
             "type": "string",
             "nullable": true
           },
@@ -690,18 +719,40 @@
         },
         "additionalProperties": false
       },
+      "DepositIbanDto": {
+        "type": "object",
+        "properties": {
+          "accountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "iban": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankName": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountHolder": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "DestinationBank": {
         "enum": [
-          "Mellat=0",
-          "Keshavarzi=1",
-          "Melli=2",
-          "Tejarat=3",
-          "Saderat=4",
-          "Parsian=5",
-          "Saman=6",
-          "Pasargad=7",
-          "Shahr=8",
-          "Ayande=9"
+          "Mellat=0 ",
+          "Keshavarzi=1 ",
+          "Melli=2 ",
+          "Tejarat=3 ",
+          "Saderat=4 ",
+          "Parsian=5 ",
+          "Saman=6 ",
+          "Pasargad=7 ",
+          "Shahr=8 ",
+          "Ayande=9 "
         ],
         "type": "integer",
         "format": "int32"
@@ -824,6 +875,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "submittedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
           "title": {
             "type": "string",
             "nullable": true
@@ -850,37 +905,37 @@
       },
       "RequestStatus": {
         "enum": [
-          "InComplete=0",
-          "Draft=1",
-          "Schedule=2",
-          "Final=3",
-          "Unknown=4",
-          "Failed=5"
+          "InComplete=0 ",
+          "Draft=1 ",
+          "Schedule=2 ",
+          "Final=3 ",
+          "Unknown=4 ",
+          "Failed=5 "
         ],
         "type": "integer",
         "format": "int32"
       },
       "SettlementAboutType": {
         "enum": [
-          "Other=0",
-          "Salary=1",
-          "Insurance=2",
-          "Health=3",
-          "Investment=4",
-          "Currency=5",
-          "Retirement=6",
-          "Movable=7",
-          "Immovable=8",
-          "CashManagement=9",
-          "Customs=10",
-          "Tax=11",
-          "OtherGovernment=12",
-          "Facilities=13",
-          "Guarantee=14",
-          "Daily=15",
-          "Charity=16",
-          "Commodity=17",
-          "Services=18"
+          "Other=0 ",
+          "Salary=1 ",
+          "Insurance=2 ",
+          "Health=3 ",
+          "Investment=4 ",
+          "Currency=5 ",
+          "Retirement=6 ",
+          "Movable=7 ",
+          "Immovable=8 ",
+          "CashManagement=9 ",
+          "Customs=10 ",
+          "Tax=11 ",
+          "OtherGovernment=12 ",
+          "Facilities=13 ",
+          "Guarantee=14 ",
+          "Daily=15 ",
+          "Charity=16 ",
+          "Commodity=17 ",
+          "Services=18 "
         ],
         "type": "integer",
         "format": "int32"
@@ -1013,10 +1068,10 @@
       },
       "SettlementStatus": {
         "enum": [
-          "InComplete=0",
-          "FAILED=1",
-          "IN_PROGRESS=2",
-          "TRANSFERRED=3"
+          "InComplete=0 ",
+          "FAILED=1 ",
+          "IN_PROGRESS=2 ",
+          "TRANSFERRED=3 "
         ],
         "type": "integer",
         "format": "int32"
@@ -1079,30 +1134,30 @@
       },
       "TransactionType": {
         "enum": [
-          "Input=0",
-          "Output=1",
-          "InputWage=2",
-          "OutputWage=3",
-          "ManualInput=4",
-          "ManualOutput=5",
-          "DepositInput=6"
+          "Input=0 ",
+          "Output=1 ",
+          "InputWage=2 ",
+          "OutputWage=3 ",
+          "ManualInput=4 ",
+          "ManualOutput=5 ",
+          "DepositInput=6 "
         ],
         "type": "integer",
         "format": "int32"
       },
       "TransferType": {
         "enum": [
-          "AUTO=0",
-          "NORMAL=1",
-          "ACH=2"
+          "AUTO=0 ",
+          "NORMAL=1 ",
+          "ACH=2 "
         ],
         "type": "integer",
         "format": "int32"
       },
       "TwoStepType": {
         "enum": [
-          "SMS=0",
-          "GoogleAuthenticator=1"
+          "SMS=0 ",
+          "GoogleAuthenticator=1 "
         ],
         "type": "integer",
         "format": "int32"
