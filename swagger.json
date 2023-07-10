@@ -260,7 +260,7 @@
           "Request"
         ],
         "summary": "Public api for customer to submit a request containing a list of settlements.",
-        "description": "In the input model, there is a field called NotifyUrl.We need this field to return the transaction result to it. The returned information includes:\r\n **ClientTransferReference, ServerTransferReference, BankTransferReference, Status, RequestedTransferType, LastEffectiveTransferType**",
+        "description": "In the input model, there is a field called NotifyUrl.We need this field to return the transaction result to it. The returned information includes:\r\n **ClientRefId, SettlementCode, BankTransferReference, Status**",
         "parameters": [
           {
             "name": "version",
