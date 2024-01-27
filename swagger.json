@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Cash Out Public API",
-    "description": "",
+    "description": "Cash-out service's public APIs",
     "version": "v1"
   },
   "servers": [
@@ -16,17 +16,9 @@
         "tags": [
           "CashOut"
         ],
-        "summary": "Return overview of user cash-out",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Get an overview of current user's infromation",
+        "operationId": "OverviewGet",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Success",
@@ -46,8 +38,9 @@
         "tags": [
           "CashOut"
         ],
-        "summary": "Return list of user transactions in specific details",
-        "description": "You can filter your list by:\r\n\r\n transactionCode, createdOn, type, transactionKind\r\n Type value==>Input=0, Output=1\r\n TransactionKind value==>Money=0, Wage=1, Manual=2, Deposit=3, DepositWage=4\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=TransactionCode='PT-123654' is wrong\r\n  ّFilter=transactionCode='PT-123654' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: transactionCode\r\nFilter = transactionCode = 'PT-123654'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: transactionCode\r\nFilter = transactionCode = *'PT-123'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\ntransactionCode = *'PT-123', type= 0\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\ntransactionCode = *'PT-123' | type= 0\r\n</code>",
+        "summary": "Query on user's Transactions",
+        "description": "You can filter Transactions by these fields:\r\n<br /><br /><b>Ref</b>: Reference code of a Transaction\r\n<br /><br /><b>CreatedOn</b>: Transaction's UTC Date and time of creation\r\n<br /><br /><b>TransactionType</b>: Determines general type of a Transaction. Values of Transaction type are:\r\n<br /><br /><b>1 = Deposit</b>: Increases Account's Balance \r\n<br /><br /><b>2 = Withdraw</b>: Decreases Account's Balance\r\n<br /><br /><b> ** Notes ** </b><br /><br /><b>Field names in Filter and OrderBy clauses are not case sensitive</b>: For example both filter clauses below are correct:\r\n<br /><br /><code>\r\nFilter=ref=PT-123654\r\nFilter=Ref=PT-123654\r\n</code><br /><br /><b>Field equals to given value</b>:  If you want to filter fields that exactly match the given value use <b>=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=ref=PT-123654\r\n</code><br /><br /><b>Field contains given value</b>: If you want to filter fields that contain the given value use <b>=*</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=ref= *PT-123\r\n</code><br /><br /><b>Field is not equal to given value</b>: If you want to filter fields that do not match the given value use <b>!=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=ref!=PT-123654\r\n</code><br /><br /><b>Logical operators</b>: You can use logical operators to combine multiple filter conditions. these operators are:\r\n<br /><br /><b>And operator</b>: Use ' , '. For Example:\r\n<br /><br /><code>\r\nFilter=ref=PT-12345,TransactionType=1\r\n</code><br /><br /><b>Or operator</b>: Use ' | ' . For Example:\r\n<br /><br /><code>\r\nFilter=ref=PT-12345|TransactionType=1\r\n</code>",
+        "operationId": "TransactionListWithqueryGet",
         "parameters": [
           {
             "name": "Page",
@@ -78,14 +71,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -94,7 +79,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TransactionDetailVMPaging"
+                  "$ref": "#/components/schemas/LegacyTransactionDetailsVMPagedQueryResult"
                 }
               }
             }
@@ -107,33 +92,25 @@
         "tags": [
           "Deposit"
         ],
-        "summary": "Create a deposit with id to increase user's balance",
-        "description": "Create a deposit- with- id to increase user’s balance In the input model,\r\nthere is a field called NotifyUrl.We need this field to return the transaction result to it after registering the information.The returned information includes:\r\n\r\n **Amount, DepositId, DepositLocalTimestamp, TransactionNumber, BankReference**\r\n\r\nNote: you should implement a POST API and set its url to NotifyUrl, so that our webhook can call it. Note: If this address is not valid, you will receive an error.",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Creates a Deposit Identifier to be used for increasing User's Balance directly when money deposits in our account with given identifier in Identfied deposits.",
+        "description": "In the Input request model, there is a field called <b>NotifyUrl</b><br />\r\nPut your Webhook address in <b>NotifyUrl</b> to get notified when a money deposits with created identifier<br />\r\nWith every Identified Deposit a HTTP request with POST http method is sent to<b>NotifyUrl</b> and contains a JSON object inside it's body with model below:<br /><code>\r\n{\r\n    \"Amount\":number,\r\n    \"DepositId\":string,\r\n    \"BankReference\":string,\r\n    \"TransactionNumber\":string,\r\n    \"DepositLocalTimestamp\":number,\r\n}\r\n</code>",
+        "operationId": "CreateDepositWithIdWithmodelPost",
+        "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateDepositVM"
+                "$ref": "#/components/schemas/CreateDepositIdentifierRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateDepositVM"
+                "$ref": "#/components/schemas/CreateDepositIdentifierRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateDepositVM"
+                "$ref": "#/components/schemas/CreateDepositIdentifierRequest"
               }
             }
           }
@@ -144,7 +121,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DepositDetailsVM"
+                  "$ref": "#/components/schemas/DepositDetails"
                 }
               }
             }
@@ -168,8 +145,9 @@
         "tags": [
           "Deposit"
         ],
-        "summary": "Return list of deposits with id for user with complete filtering and queryable.",
-        "description": " You can filter your list by:\r\n\r\n code, depositId, isLegal, createdOn, businessNationalId, nationalCode\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'Jon Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>",
+        "summary": "Query on user's Deposit Identifiers",
+        "description": "You can filter Deposit Identifiers by these fields:\r\n<br /><br /><b>Code</b>: Unique Code of Deposit Identifier\r\n<br /><br /><b>DepositId</b>: Identifier of Deposit\r\n<br /><br /><b>IsLegal</b>: A flag which determines if Deposit Identifier's owner is a legal or a natural person.\r\n<br /><br /><b>BusinessNationalId</b>: Business national Id of Deposit Identifier's owner. for legal person\r\n<br /><br /><b>NationalCode</b>: National code of Deposit Identifier's owner. for natural person\r\n<br /><br /><b>CreatedOn</b>: Deposit Identifier's UTC Date and time of creation\r\n<br /><br /><b> ** Notes ** </b><br /><br /><b>Field names in Filter and OrderBy clauses are not case sensitive</b>: For example both filter clauses below are correct:\r\n<br /><br /><code>\r\nFilter=Code=PT-123654\r\nFilter=Code=PT-123654\r\n</code><br /><br /><b>Field equals to given value</b>:  If you want to filter fields that exactly match the given value use <b>=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-123654\r\n</code><br /><br /><b>Field contains given value</b>: If you want to filter fields that contain the given value use <b>=*</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code= *PT-123\r\n</code><br /><br /><b>Field is not equal to given value</b>: If you want to filter fields that do not match the given value use <b>!=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code!=PT-123654\r\n</code><br /><br /><b>Logical operators</b>: You can use logical operators to combine multiple filter conditions. these operators are:\r\n<br /><br /><b>And operator</b>: Use ' , '. For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-12345,IsLegal=true\r\n</code><br /><br /><b>Or operator</b>: Use ' | ' . For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-12345|IsLegal=true\r\n</code>",
+        "operationId": "DepositsListWithqueryGet",
         "parameters": [
           {
             "name": "Page",
@@ -200,14 +178,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -216,7 +186,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DepositDetailsVMPaging"
+                  "$ref": "#/components/schemas/DepositDetailsPagedQueryResult"
                 }
               }
             }
@@ -229,24 +199,17 @@
         "tags": [
           "Deposit"
         ],
-        "summary": "Return deposit IBAN, Account holder,Bank name, Account number",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Get Bank Account Information to use for Identified Deposits.",
+        "description": "Contains IBAN, Account holder, Bank name and Account number to use for Identifed deposits in response body to use",
+        "operationId": "DepositIbanGet",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DepositIbanDto"
+                  "$ref": "#/components/schemas/DepositIbanInfo"
                 }
               }
             }
@@ -259,18 +222,10 @@
         "tags": [
           "Request"
         ],
-        "summary": "Public api for customer to submit a request containing a list of settlements.",
-        "description": "In the input model, there is a field called NotifyUrl.We need this field to return the transaction result to it. The returned information includes:\r\n **ClientRefId, SettlementCode, BankTransferReference, Status**",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Public API for customers to create and submit Settlements within a Request.",
+        "description": "In the Input request model, there is a field called <b>NotifyUrl</b><br />\r\nPut your Webhook address in <b>NotifyUrl</b> to get notified about change of each Settlement's status in created Request<br />\r\nWith every status change a HTTP request with POST http method is sent to<b>NotifyUrl</b> and contains a JSON object inside it's body with model below:<br /><code>\r\n{\r\n    \"Status\":number,\r\n    \"ClientRefId\":string,\r\n    \"SettlementCode\":string,\r\n    \"BankTransferReference\":string\r\n}\r\n</code>",
+        "operationId": "CreateBatchRequestWithmodelPost",
+        "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -320,8 +275,9 @@
         "tags": [
           "Request"
         ],
-        "summary": "Return list of cash-out requests with complete filtering and queryable",
-        "description": "You can filter your list by:\r\n\r\n code, createdOn, totalAmount, status, title, transferType\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'Jon Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>",
+        "summary": "Query on user's Requests",
+        "description": "You can filter Requests by these fields:\r\n<br /><br /><b>Code</b>: Unique Code of Request\r\n<br /><br /><b>Title</b>: Title of Request\r\n<br /><br /><b>TotalAmount</b>: Total Amount of Request\r\n<br /><br /><b>CreatedOn</b>: Request's UTC Date and time of creation\r\n<br /><br /><b>Status</b>: Determines status of a Request. Values of Status are:\r\n<br /><br /><b>0 = Incomplete</b>: Incomplete means the Request is not submitted to banking provider yet\r\n<br /><br /><b>1 = Draft</b>: Draft means the Request is stored as draft and is not submitted to banking provider yet\r\n<br /><br /><b>2 = Schedule</b>: Schedule means the Request is scheduled\r\n<br /><br /><b>3 = Final</b>: Final means the Request has been submitted to banking provider successfully\r\n<br /><br /><b>4 = Unknown</b>: Unknown means the Request's current status is not known due to unexpected errors or loss of connection with banking provider.\r\n<br /><br /><b>5 = Failed</b>: Failed means the Request has been submitted but was not accepted by banking provider due to validation or other temporary errors.\r\n<br /><br /><b>TransferType</b>: Transfer type of Request's Settlements. Values of Transfer type are: \r\n<br /><br /><b>0 = AUTO</b>: Tries NORMAL flow first for three times and if NORMAL flow failed in all tries then uses ACH flow\r\n<br /><br /><b>1 = NORMAL</b>: Account to Account Money Transfer Inside Bank\r\n<br /><br /><b>2 = ACH</b>: Automated Clearing House(ACH) -> Bank-to-Bank Money Transfer aka PAYA\r\n<br /><br /><b> ** Notes ** </b><br /><br /><b>Field names in Filter and OrderBy clauses are not case sensitive</b>: For example both filter clauses below are correct:\r\n<br /><br /><code>\r\nFilter=Code=PT-123654\r\nFilter=Code=PT-123654\r\n</code><br /><br /><b>Field equals to given value</b>:  If you want to filter fields that exactly match the given value use <b>=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-123654\r\n</code><br /><br /><b>Field contains given value</b>: If you want to filter fields that contain the given value use <b>=*</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code= *PT-123\r\n</code><br /><br /><b>Field is not equal to given value</b>: If you want to filter fields that do not match the given value use <b>!=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code!=PT-123654\r\n</code><br /><br /><b>Logical operators</b>: You can use logical operators to combine multiple filter conditions. these operators are:\r\n<br /><br /><b>And operator</b>: Use ' , '. For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-12345,Status=1\r\n</code><br /><br /><b>Or operator</b>: Use ' | ' . For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-12345|Status=1\r\n</code>",
+        "operationId": "RequestsListWithqueryGet",
         "parameters": [
           {
             "name": "Page",
@@ -352,14 +308,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -368,7 +316,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RequestDetailsVMPaging"
+                  "$ref": "#/components/schemas/RequestDetailsVMPagedQueryResult"
                 }
               }
             }
@@ -381,8 +329,9 @@
         "tags": [
           "Settlement"
         ],
-        "summary": "Return list of settlements for with complete filtering and queryable",
-        "description": "You can filter your list by:\r\n\r\n code, amount, destinationBank, iban, bankTransferReference,\r\n createdOn, modifiedOn-, status, clientRefId, mobile, nationalId, fullName\r\n\r\n **Note: Filter and OrderBy are case sensitive:**\r\n\r\n for example:\r\n\r\n<code>\r\n  ّFilter=Code='xyZ158' is wrong\r\n  ّFilter=code='xyZ158' is correct\r\n</code>\r\n\r\n\r\n**Notes about the filter:**\r\n\r\nIf you want to search the whole phrase\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = 'Jon Smith'\r\n</code>\r\n\r\nIf you want to search for part of the phrase:\r\n\r\n<code>\r\nFor example: FullName\r\nFilter = FullName = *'Jon'\r\n</code>\r\n\r\nIf you want to use And - Or operator\r\n\r\nFor example: filter all records with status equal to 3 and code equal to p7MM4\r\n\r\n<code>\r\nstatus = 3, code= p7MM4\r\n</code>\r\n\r\nFor example: filter all records with status equal to 3 or code equal to p7MM4\r\n\r\n <code>\r\nstatus = 3 | code = p7MM4\r\n</code>",
+        "summary": "Query on user's Settlements",
+        "description": "You can filter Settlements by these fields:\r\n<br /><br /><b>Code</b>: Unique Code of Settlement\r\n<br /><br /><b>Amount</b>: Amount of Settlement\r\n<br /><br /><b>BankTransferReference</b>: Bank's transfer reference assigned to Settlement in transmission phase.\r\n<br /><br /><b>ModifiedOn</b>: Settlement's UTC Date and time of last update\r\n<br /><br /><b>CreatedOn</b>: Settlement's UTC Date and time of creation\r\n<br /><br /><b>Iban</b>: Settlement's Destination IBAN\r\n<br /><br /><b>ClientRefId</b>: Settlement's Client ref Id Assigned by creator. Unique between Settlements of in each Request\r\n<br /><br /><b>Mobile</b>: Mobile number of Settlement's receiver\r\n<br /><br /><b>NationalId</b>: National Id of Settlement's receiver\r\n<br /><br /><b>FullName</b>: Full name of Settlement's receiver\r\n<br /><br /><b>Status</b>: Determines status of a Settlement. Values of Status are:\r\n<br /><br /><b>-1 = Draft</b>: Draft means the Settlement is stored as draft and is not submitted to banking provider yet\r\n<br /><br /><b>0 = Incomplete</b>: Incomplete means the Settlement is not submitted to banking provider yet\r\n<br /><br /><b>1 = FAILED</b>: Failed means the settlement has been submitted to banking provider but it has failed in transmission phase\r\n<br /><br /><b>2 = IN_PROGRESS</b>: In progress means the settlement has been submitted to banking provider and is pending for transmission\r\n<br /><br /><b>3 = TRANSFERRED</b>: Transferred means the settlement has been submitted to banking provider and was successfully transferred\r\n<br /><br /><b>DestinationBank</b>: Destination Bank of Settlement. Values of Destination bank are: \r\n<br /><br /><b>012 = Mellat</b><br /><br /><b>019 = Saderat</b><br /><br /><b>054 = Parsian</b><br /><br /><b>056 = Saman</b><br /><br /><b>062 = Ayande</b><br /><br /><b>057 = Pasargad</b><br /><br /><b>018 = Tejarat</b><br /><br /><b>061 = Shahr</b><br /><br /><b>016 = Keshavarzi</b><br /><br /><b>017 = Melli</b><br /><br /><b>055 = EghtesadNovin</b><br /><br /><b>070 = Resalat</b><br /><br /><b>078 = MiddleEast</b><br /><br /><b> ** Notes ** </b><br /><br /><b>Field names in Filter and OrderBy clauses are not case sensitive</b>: For example both filter clauses below are correct:\r\n<br /><br /><code>\r\nFilter=Code=PT-123654\r\nFilter=Code=PT-123654\r\n</code><br /><br /><b>Field equals to given value</b>:  If you want to filter fields that exactly match the given value use <b>=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-123654\r\n</code><br /><br /><b>Field contains given value</b>: If you want to filter fields that contain the given value use <b>=*</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code= *PT-123\r\n</code><br /><br /><b>Field is not equal to given value</b>: If you want to filter fields that do not match the given value use <b>!=</b> operator. For Example:\r\n<br /><br /><code>\r\nFilter=Code!=PT-123654\r\n</code><br /><br /><b>Logical operators</b>: You can use logical operators to combine multiple filter conditions. these operators are:\r\n<br /><br /><b>And operator</b>: Use ' , '. For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-12345,Status=1\r\n</code><br /><br /><b>Or operator</b>: Use ' | ' . For Example:\r\n<br /><br /><code>\r\nFilter=Code=PT-12345|Status=1\r\n</code>",
+        "operationId": "SearchSettlementsListWithqueryGet",
         "parameters": [
           {
             "name": "Page",
@@ -413,23 +362,25 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponseObject"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SettlementFullDetailsVMPaging"
+                  "$ref": "#/components/schemas/SettlementFullDetailsVMPagedQueryResult"
                 }
               }
             }
@@ -440,6 +391,20 @@
   },
   "components": {
     "schemas": {
+      "BadRequestResponseObject": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "BatchRequest": {
         "required": [
           "settlements",
@@ -557,7 +522,7 @@
         },
         "additionalProperties": false
       },
-      "CreateDepositVM": {
+      "CreateDepositIdentifierRequest": {
         "type": "object",
         "properties": {
           "isLegal": {
@@ -604,11 +569,25 @@
           "notifyUrl": {
             "type": "string",
             "nullable": true
+          },
+          "sourceIbans": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "sourceCardNumbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "DepositDetailsVM": {
+      "DepositDetails": {
         "type": "object",
         "properties": {
           "code": {
@@ -663,11 +642,25 @@
           "createdOn": {
             "type": "string",
             "format": "date-time"
+          },
+          "sourceIbans": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "sourceCardNumbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "DepositDetailsVMPaging": {
+      "DepositDetailsPagedQueryResult": {
         "type": "object",
         "properties": {
           "count": {
@@ -677,14 +670,14 @@
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DepositDetailsVM"
+              "$ref": "#/components/schemas/DepositDetails"
             },
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "DepositIbanDto": {
+      "DepositIbanInfo": {
         "type": "object",
         "properties": {
           "accountNumber": {
@@ -714,10 +707,72 @@
           "Tejarat=3 ",
           "Saderat=4 ",
           "Parsian=5 ",
-          "Saman=6 ",
-          "Pasargad=7 ",
-          "Shahr=8 ",
-          "Ayande=9 "
+          "EghtesadNovin=6 ",
+          "Saman=7 ",
+          "Pasargad=8 ",
+          "Shahr=9 ",
+          "Ayande=10 ",
+          "Resalat=11 ",
+          "MiddleEast=12 "
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "LegacyTransactionDetailsVM": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/OldTransactionType"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "balance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LegacyTransactionDetailsVMPagedQueryResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegacyTransactionDetailsVM"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OldTransactionType": {
+        "enum": [
+          "Input=0 ",
+          "Output=1 ",
+          "InputWage=2 ",
+          "OutputWage=3 ",
+          "ManualInput=4 ",
+          "ManualOutput=5 ",
+          "DepositInput=6 "
         ],
         "type": "integer",
         "format": "int32"
@@ -746,6 +801,12 @@
           "excelURL": {
             "type": "string",
             "nullable": true
+          },
+          "authenticatorTotpEnabled": {
+            "type": "boolean"
+          },
+          "isCritical": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -795,7 +856,7 @@
         },
         "additionalProperties": false
       },
-      "RequestDetailsVMPaging": {
+      "RequestDetailsVMPagedQueryResult": {
         "type": "object",
         "properties": {
           "count": {
@@ -883,6 +944,14 @@
             "type": "string",
             "nullable": true
           },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "nationalId": {
+            "type": "string",
+            "nullable": true
+          },
           "description": {
             "type": "string",
             "nullable": true
@@ -917,7 +986,7 @@
         },
         "additionalProperties": false
       },
-      "SettlementFullDetailsVMPaging": {
+      "SettlementFullDetailsVMPagedQueryResult": {
         "type": "object",
         "properties": {
           "count": {
@@ -936,65 +1005,11 @@
       },
       "SettlementStatus": {
         "enum": [
+          "Draft=-1",
           "InComplete=0 ",
           "FAILED=1 ",
           "IN_PROGRESS=2 ",
           "TRANSFERRED=3 "
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "TransactionDetailVM": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "transactionType": {
-            "$ref": "#/components/schemas/TransactionType"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdOn": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "TransactionDetailVMPaging": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TransactionDetailVM"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "TransactionType": {
-        "enum": [
-          "Input=0 ",
-          "Output=1 ",
-          "InputWage=2 ",
-          "OutputWage=3 ",
-          "ManualInput=4 ",
-          "ManualOutput=5 ",
-          "DepositInput=6 "
         ],
         "type": "integer",
         "format": "int32"
@@ -1020,7 +1035,7 @@
   },
   "security": [
     {
-      "Bearer": [ ]
+      "Bearer": []
     }
   ]
 }
